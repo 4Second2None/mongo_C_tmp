@@ -38,6 +38,11 @@ typedef struct _mongoc_gridfs_t mongoc_gridfs_t;
 mongoc_gridfs_file_t      *mongoc_gridfs_create_file_from_stream (mongoc_gridfs_t          *gridfs,
                                                                   mongoc_stream_t          *stream,
                                                                   mongoc_gridfs_file_opt_t *opt);
+mongoc_gridfs_file_t      *mongoc_gridfs_create_file_from_buff (mongoc_gridfs_t          *gridfs,
+                                                                  char          *buff,
+                                                                  ssize_t          len,
+                                                                  char          *objid,
+                                                                  mongoc_gridfs_file_opt_t *opt);                                                                 
 mongoc_gridfs_file_t      *mongoc_gridfs_create_file             (mongoc_gridfs_t          *gridfs,
                                                                   mongoc_gridfs_file_opt_t *opt);
 mongoc_gridfs_file_list_t *mongoc_gridfs_find                    (mongoc_gridfs_t          *gridfs,
