@@ -97,6 +97,7 @@ LIBMONGOC_1.0 {
         mongoc_database_set_write_concern;
         mongoc_gridfs_create_file;
         mongoc_gridfs_create_file_from_stream;
+        mongoc_gridfs_create_file_from_buff;
         mongoc_gridfs_destroy;
         mongoc_gridfs_drop;
         mongoc_gridfs_file_destroy;
