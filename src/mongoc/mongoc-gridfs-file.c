@@ -152,7 +152,7 @@ mongoc_gridfs_file_save (mongoc_gridfs_file_t *file)
    if (metadata) {
       bson_append_document (&child, "metadata", -1, metadata);
    }
-
+   bson_append_int32 (&child, "crf", -1, 0);
    bson_append_document_end (update, &child);
 
    r = mongoc_collection_update (file->gridfs->files, MONGOC_UPDATE_UPSERT,
