@@ -278,7 +278,7 @@ mongoc_gridfs_create_file_from_buff (mongoc_gridfs_t *gridfs,
                                     char *objid,
                                     mongoc_gridfs_file_opt_t *opt)
 {
-    mongoc_gridfs_file_t *file;
+    /*mongoc_gridfs_file_t *file;
     ssize_t r;
     uint8_t buf[MONGOC_GRIDFS_STREAM_CHUNK];
     mongoc_iovec_t iov;
@@ -313,8 +313,50 @@ mongoc_gridfs_create_file_from_buff (mongoc_gridfs_t *gridfs,
             RETURN (NULL);
         }
         temp_buf = temp_buf + r;
+    }*/
+    mongoc_gridfs_file_t *file;
+    ssize_t r;
+    uint8_t buf[MONGOC_GRIDFS_STREAM_CHUNK];
+    mongoc_iovec_t iov;
+    mongoc_iovec_t * iovs;
+    int timeout;
+    int tmplen = len;
+    ENTRY;
+    BSON_ASSERT (gridfs);
+    iov.iov_base = (void *)buf;
+    iov.iov_len = 0;
+    char *temp_buf = buff;
+    char *endbuf = buff + len;
+    file = _mongoc_gridfs_file_new (gridfs, opt);
+    memset(&(file->files_id.value.v_oid), 0, sizeof(bson_oid_t));
+    bson_oid_init_from_string(&(file->files_id.value.v_oid), objid);
+    timeout = gridfs->client->cluster.sockettimeoutms;
+    int breakflag = 0;
+    int iovnu = 0;
+    int nuflag = len / (MONGOC_GRIDFS_STREAM_CHUNK);
+    nuflag = nuflag + ((len % (MONGOC_GRIDFS_STREAM_CHUNK)) > 0 ? 1 : 0);
+    iovs = (mongoc_iovec_t *)malloc(nuflag * sizeof(mongoc_iovec_t));
+    memset(iovs, 0, nuflag * sizeof(mongoc_iovec_t));
+    for(iovnu = 0; iovnu < nuflag; iovnu ++)
+    {
+        int stilllen = endbuf - temp_buf;
+        if(stilllen <= 0)
+          break;
+        iovs[iovnu].iov_base = temp_buf;
+        if(stilllen < MONGOC_GRIDFS_STREAM_CHUNK)
+        {
+            iovs[iovnu].iov_len = stilllen;
+            iovnu++;
+            break;
+        }
+        else
+          iovs[iovnu].iov_len = MONGOC_GRIDFS_STREAM_CHUNK;
+        temp_buf = temp_buf + MONGOC_GRIDFS_STREAM_CHUNK;
     }
+    mongoc_gridfs_file_writev (file, iovs, iovnu, timeout);
+
     mongoc_gridfs_file_seek (file, 0, SEEK_SET);
+    free(iovs);
     RETURN (file);
 }
 
